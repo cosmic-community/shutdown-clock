@@ -8,11 +8,12 @@ export function calculateCountdown(startDate: string): CountdownTime {
   // Convert to EST/EDT (UTC-5/UTC-4)
   // Note: This is a simplified approach. For production, consider using a library like date-fns-tz
   const offsetHours = 5; // EST offset from UTC
-  const start = shutdownDate.getTime() - (offsetHours * 60 * 60 * 1000);
+  const shutdownStart = shutdownDate.getTime() - (offsetHours * 60 * 60 * 1000);
   
   const now = new Date().getTime();
-  const difference = now - start;
+  const difference = now - shutdownStart;
 
+  // If the shutdown hasn't started yet, return zero
   if (difference < 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   }
@@ -32,7 +33,10 @@ export function formatCountdownUnit(value: number): string {
 export function generateShareText(time: CountdownTime): string {
   const { days, hours, minutes, seconds } = time;
   
-  if (days === 0 && hours === 0 && minutes === 0) {
+  // If all values are zero, it means the shutdown hasn't started yet
+  if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+    return `The government shutdown hasn't started yet. Check out the live counter:`;
+  } else if (days === 0 && hours === 0 && minutes === 0) {
     return `The government has been shut down for ${seconds} seconds! Check out the live counter:`;
   } else if (days === 0 && hours === 0) {
     return `The government has been shut down for ${minutes} minutes and ${seconds} seconds! Check out the live counter:`;
