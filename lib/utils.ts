@@ -5,10 +5,9 @@ export function calculateCountdown(startDate: string): CountdownTime {
   const shutdownDate = new Date(startDate);
   shutdownDate.setHours(0, 1, 0, 0); // Set to 12:01 AM (00:01)
   
-  // Convert to EST/EDT (UTC-5/UTC-4)
-  // Note: This is a simplified approach. For production, consider using a library like date-fns-tz
+  // Convert EST to UTC: EST is UTC-5, so we need to ADD 5 hours to get UTC time
   const offsetHours = 5; // EST offset from UTC
-  const shutdownStart = shutdownDate.getTime() - (offsetHours * 60 * 60 * 1000);
+  const shutdownStart = shutdownDate.getTime() + (offsetHours * 60 * 60 * 1000);
   
   const now = new Date().getTime();
   const difference = now - shutdownStart;
