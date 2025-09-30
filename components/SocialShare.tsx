@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { calculateCountdown, generateShareText, getTwitterShareUrl, getFacebookShareUrl } from '@/lib/utils'
+import { CountdownTime } from '@/types'
 
 interface SocialShareProps {
   shutdownStartDate: string;
@@ -9,15 +10,26 @@ interface SocialShareProps {
 
 export function SocialShare({ shutdownStartDate }: SocialShareProps) {
   const [currentUrl, setCurrentUrl] = useState('');
-  const [days, setDays] = useState(0);
+  const [time, setTime] = useState<CountdownTime>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
     setCurrentUrl(window.location.href);
-    const time = calculateCountdown(shutdownStartDate);
-    setDays(time.days);
+    
+    const updateTime = () => {
+      const currentTime = calculateCountdown(shutdownStartDate);
+      setTime(currentTime);
+    };
+
+    // Update immediately
+    updateTime();
+
+    // Update every second to keep the share text current
+    const interval = setInterval(updateTime, 1000);
+
+    return () => clearInterval(interval);
   }, [shutdownStartDate]);
 
-  const shareText = generateShareText(days);
+  const shareText = generateShareText(time);
   const twitterUrl = getTwitterShareUrl(shareText, currentUrl);
   const facebookUrl = getFacebookShareUrl(currentUrl);
 
