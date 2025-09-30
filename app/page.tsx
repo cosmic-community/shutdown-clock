@@ -54,6 +54,24 @@ export default async function HomePage() {
           </p>
         </div>
 
+        {/* Contact Representatives Section */}
+        <div className="bg-govt-blue text-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold mb-4 text-center">Take Action</h2>
+          <p className="text-lg mb-6 text-center">
+            Want to make your voice heard? Contact your representatives!
+          </p>
+          <div className="flex justify-center">
+            <a
+              href="https://www.house.gov/representatives/find-your-representative"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-white text-govt-blue px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors duration-200"
+            >
+              Find Your Representative →
+            </a>
+          </div>
+        </div>
+
         {/* Social Share */}
         <div className="flex justify-center mb-16">
           <SocialShare shutdownStartDate={shutdownStartDate} />
