@@ -62,8 +62,8 @@ export function getFacebookShareUrl(url: string, quote?: string): string {
   const encodedUrl = encodeURIComponent(url);
   if (quote && quote.trim()) {
     const encodedQuote = encodeURIComponent(quote);
-    // Use Facebook's sharer dialog which supports the quote parameter
-    return `https://www.facebook.com/dialog/share?app_id=966242223397117&href=${encodedUrl}&quote=${encodedQuote}&display=popup&redirect_uri=${encodedUrl}`;
+    // Use the standard Facebook sharer which works reliably
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedQuote}`;
   }
   return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
 }
