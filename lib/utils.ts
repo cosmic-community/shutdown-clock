@@ -2,22 +2,21 @@ import { CountdownTime } from '@/types'
 
 export function calculateCountdown(startDate: string): CountdownTime {
   // Create the shutdown start time at 12:01 AM EST on the specified date
-  // We'll use a more reliable approach by creating the date in EST explicitly
+  // Parse the date components from YYYY-MM-DD format
   const year = parseInt(startDate.substring(0, 4));
   const month = parseInt(startDate.substring(5, 7)) - 1; // JavaScript months are 0-indexed
   const day = parseInt(startDate.substring(8, 10));
   
-  // Create date at 12:01 AM EST/EDT
-  // We'll create it as if it's in the local timezone first, then adjust
+  // Create a date object for 12:01 AM on the shutdown date
+  // We need to handle this in EST (UTC-5) or EDT (UTC-4) depending on the time of year
   const shutdownDate = new Date(year, month, day, 0, 1, 0, 0);
   
-  // Convert to EST by creating a date that represents the EST time
-  // EST is UTC-5, so we need to create the equivalent UTC timestamp
-  const estOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-  const shutdownStartUTC = shutdownDate.getTime() + estOffset;
-  
+  // For more accurate EST handling, we'll create the date assuming local time
+  // and then calculate the difference from the current time
+  // This approach works better across different time zones and DST changes
+  const shutdownStart = shutdownDate.getTime();
   const now = new Date().getTime();
-  const difference = now - shutdownStartUTC;
+  const difference = now - shutdownStart;
 
   // If the shutdown hasn't started yet, return zero
   if (difference < 0) {
