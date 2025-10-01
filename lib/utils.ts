@@ -40,15 +40,15 @@ export function generateShareText(time: CountdownTime): string {
   
   // If all values are zero, it means the shutdown hasn't started yet
   if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
-    return `The government shutdown hasn't started yet. Check out the live counter:`;
+    return `The government shutdown hasn't started yet. Check out the live counter!`;
   } else if (days === 0 && hours === 0 && minutes === 0) {
-    return `The government has been shut down for ${seconds} seconds! Check out the live counter:`;
+    return `The government has been shut down for ${seconds} seconds! Check out the live counter!`;
   } else if (days === 0 && hours === 0) {
-    return `The government has been shut down for ${minutes} minutes and ${seconds} seconds! Check out the live counter:`;
+    return `The government has been shut down for ${minutes} minutes and ${seconds} seconds! Check out the live counter!`;
   } else if (days === 0) {
-    return `The government has been shut down for ${hours} hours, ${minutes} minutes, and ${seconds} seconds! Check out the live counter:`;
+    return `The government has been shut down for ${hours} hours, ${minutes} minutes, and ${seconds} seconds! Check out the live counter!`;
   } else {
-    return `The government has been shut down for ${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds! Check out the live counter:`;
+    return `The government has been shut down for ${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds! Check out the live counter!`;
   }
 }
 
@@ -60,9 +60,10 @@ export function getTwitterShareUrl(text: string, url: string): string {
 
 export function getFacebookShareUrl(url: string, quote?: string): string {
   const encodedUrl = encodeURIComponent(url);
-  if (quote) {
+  if (quote && quote.trim()) {
     const encodedQuote = encodeURIComponent(quote);
-    return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedQuote}`;
+    // Use Facebook's sharer dialog which supports the quote parameter
+    return `https://www.facebook.com/dialog/share?app_id=966242223397117&href=${encodedUrl}&quote=${encodedQuote}&display=popup&redirect_uri=${encodedUrl}`;
   }
   return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
 }
