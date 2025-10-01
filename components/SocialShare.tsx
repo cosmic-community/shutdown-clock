@@ -31,7 +31,7 @@ export function SocialShare({ shutdownStartDate }: SocialShareProps) {
 
   const shareText = generateShareText(time);
   const twitterUrl = getTwitterShareUrl(shareText, currentUrl);
-  const facebookUrl = getFacebookShareUrl(currentUrl);
+  const facebookUrl = getFacebookShareUrl(currentUrl, shareText);
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4">

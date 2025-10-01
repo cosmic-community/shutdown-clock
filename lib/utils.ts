@@ -58,7 +58,11 @@ export function getTwitterShareUrl(text: string, url: string): string {
   return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
 }
 
-export function getFacebookShareUrl(url: string): string {
+export function getFacebookShareUrl(url: string, quote?: string): string {
   const encodedUrl = encodeURIComponent(url);
+  if (quote) {
+    const encodedQuote = encodeURIComponent(quote);
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedQuote}`;
+  }
   return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
 }
