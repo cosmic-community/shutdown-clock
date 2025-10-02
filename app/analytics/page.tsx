@@ -76,14 +76,14 @@ export default function AnalyticsPage() {
         
         <div className="container mx-auto px-4 py-8 max-w-md">
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <div className="text-center mb-8">
+            <header className="text-center mb-8">
               <h1 className="text-2xl font-bold text-govt-gray mb-4">
                 Analytics Access
               </h1>
               <p className="text-gray-600">
                 This page requires an access code to view analytics data.
               </p>
-            </div>
+            </header>
 
             <form onSubmit={handleAccessSubmit} className="space-y-4">
               <div>
@@ -98,11 +98,12 @@ export default function AnalyticsPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-govt-blue"
                   placeholder="Enter access code"
                   disabled={loading}
+                  aria-required="true"
                 />
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm text-center">
+                <div className="text-red-600 text-sm text-center" role="alert">
                   {error}
                 </div>
               )}
@@ -116,14 +117,14 @@ export default function AnalyticsPage() {
               </button>
             </form>
 
-            <div className="mt-6 text-center">
+            <nav className="mt-6 text-center">
               <a 
                 href="/"
                 className="text-govt-blue hover:text-blue-700 text-sm"
               >
                 ← Back to Shutdown Clock
               </a>
-            </div>
+            </nav>
           </div>
         </div>
 
@@ -137,18 +138,18 @@ export default function AnalyticsPage() {
       <Banner text="ANALYTICS DASHBOARD" />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="text-center mb-8">
+        <header className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-govt-gray mb-4">
             Site Analytics
           </h1>
           <p className="text-lg text-gray-600">
             Internal analytics tracking for the shutdown clock website
           </p>
-        </div>
+        </header>
 
         <AnalyticsDashboard onAccessDenied={handleAccessDenied} />
         
-        <div className="mt-8 text-center space-x-4">
+        <nav className="mt-8 text-center space-x-4">
           <a 
             href="/"
             className="inline-block bg-govt-blue text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
@@ -165,7 +166,7 @@ export default function AnalyticsPage() {
           >
             Sign Out
           </button>
-        </div>
+        </nav>
       </div>
 
       <Footer text={siteSettings?.metadata?.footer_text} />

@@ -1,0 +1,11 @@
+# public/robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /analytics
+
+# Sitemap location
+Sitemap: https://shutdownusa.com/sitemap.xml
+
+# Crawl delay (optional, helps prevent server overload)
+Crawl-delay: 1
