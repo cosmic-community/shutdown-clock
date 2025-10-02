@@ -40,9 +40,9 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < events.length; i += batchSize) {
       const batch = events.slice(i, i + batchSize)
       
-      // Delete each event in the batch - properly type the event parameter
+      // Delete each event in the batch - fix TypeScript error by adding explicit type
       const deletePromises = batch.map((event: { id: string }) => 
-        cosmic.objects.deleteOne(event.id).catch((error: unknown) => {
+        cosmic.objects.deleteOne(event.id).catch(error => {
           console.error(`Failed to delete event ${event.id}:`, error)
           return null
         })
