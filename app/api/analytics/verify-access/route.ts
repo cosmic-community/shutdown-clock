@@ -4,24 +4,22 @@ export async function POST(request: NextRequest) {
   try {
     const { accessCode } = await request.json()
     
-    // Get the access code from environment variables
-    const validAccessCode = process.env.ANALYTICS_ACCESS_CODE
+    // Simple access code verification
+    // In production, you might want to use a more secure method
+    const validAccessCode = process.env.ANALYTICS_ACCESS_CODE || 'admin123'
     
-    // If no access code is set in environment, use a default
-    const requiredCode = validAccessCode || 'admin123'
-    
-    if (accessCode === requiredCode) {
-      return NextResponse.json({ success: true })
-    } else {
+    if (accessCode !== validAccessCode) {
       return NextResponse.json(
         { error: 'Invalid access code' },
         { status: 401 }
       )
     }
     
-  } catch (error) {
-    console.error('Access verification error:', error)
+    // Return success
+    return NextResponse.json({ success: true })
     
+  } catch (error) {
+    console.error('Analytics access verification error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

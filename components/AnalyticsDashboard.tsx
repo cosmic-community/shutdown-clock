@@ -56,6 +56,14 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-gray-50 p-4 rounded-lg">
+                <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            ))}
+          </div>
           <div className="space-y-2">
             <div className="h-4 bg-gray-200 rounded"></div>
             <div className="h-4 bg-gray-200 rounded w-5/6"></div>
@@ -72,6 +80,12 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
         <div className="text-center">
           <h3 className="text-lg font-semibold text-red-600 mb-2">Analytics Error</h3>
           <p className="text-gray-600">{error || 'Unable to load analytics data'}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-govt-blue text-white rounded-md hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     )
@@ -116,12 +130,12 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-3 gap-6">
         {/* Top Countries */}
         <div>
           <h3 className="text-lg font-semibold text-govt-gray mb-4">Top Countries</h3>
           {stats.topCountries.length === 0 ? (
-            <p className="text-gray-600">No country data available</p>
+            <p className="text-gray-600 text-sm">No country data available</p>
           ) : (
             <div className="space-y-2">
               {stats.topCountries.map((country, index) => (
@@ -144,7 +158,7 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
           <div className="space-y-2">
             {stats.deviceBreakdown.map((device) => (
               <div key={device.device} className="flex justify-between items-center">
-                <span className="text-sm text-gray-700 capitalize">
+                <span className="text-sm text-gray-700">
                   {device.device}
                 </span>
                 <span className="text-sm font-semibold text-govt-gray">
@@ -155,17 +169,38 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
           </div>
         </div>
 
+        {/* Operating Systems */}
+        <div>
+          <h3 className="text-lg font-semibold text-govt-gray mb-4">Operating Systems</h3>
+          {stats.operatingSystemBreakdown.length === 0 ? (
+            <p className="text-gray-600 text-sm">No OS data available</p>
+          ) : (
+            <div className="space-y-2">
+              {stats.operatingSystemBreakdown.map((os, index) => (
+                <div key={os.os} className="flex justify-between items-center">
+                  <span className="text-sm text-gray-700">
+                    {index + 1}. {os.os}
+                  </span>
+                  <span className="text-sm font-semibold text-govt-gray">
+                    {os.count.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Top Pages */}
         <div>
           <h3 className="text-lg font-semibold text-govt-gray mb-4">Top Pages</h3>
           {stats.topPages.length === 0 ? (
-            <p className="text-gray-600">No page data available</p>
+            <p className="text-gray-600 text-sm">No page data available</p>
           ) : (
             <div className="space-y-2">
               {stats.topPages.map((page, index) => (
                 <div key={page.page} className="flex justify-between items-center">
-                  <span className="text-sm text-gray-700 truncate">
-                    {index + 1}. {page.page}
+                  <span className="text-sm text-gray-700 truncate" title={page.page}>
+                    {index + 1}. {page.page === '/' ? 'Home' : page.page}
                   </span>
                   <span className="text-sm font-semibold text-govt-gray">
                     {page.count.toLocaleString()}
@@ -180,7 +215,7 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
         <div>
           <h3 className="text-lg font-semibold text-govt-gray mb-4">Browsers</h3>
           {stats.browserBreakdown.length === 0 ? (
-            <p className="text-gray-600">No browser data available</p>
+            <p className="text-gray-600 text-sm">No browser data available</p>
           ) : (
             <div className="space-y-2">
               {stats.browserBreakdown.map((browser, index) => (
@@ -196,38 +231,92 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
             </div>
           )}
         </div>
+
+        {/* Top Referrers */}
+        <div>
+          <h3 className="text-lg font-semibold text-govt-gray mb-4">Traffic Sources</h3>
+          {stats.topReferrers.length === 0 ? (
+            <p className="text-gray-600 text-sm">Mostly direct traffic</p>
+          ) : (
+            <div className="space-y-2">
+              {stats.topReferrers.map((referrer, index) => (
+                <div key={referrer.referrer} className="flex justify-between items-center">
+                  <span className="text-sm text-gray-700 truncate" title={referrer.referrer}>
+                    {index + 1}. {referrer.referrer}
+                  </span>
+                  <span className="text-sm font-semibold text-govt-gray">
+                    {referrer.count.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Daily Chart (Simple Bar Chart) */}
       {stats.dailyStats.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-lg font-semibold text-govt-gray mb-4">Daily Activity</h3>
+          <h3 className="text-lg font-semibold text-govt-gray mb-4">Daily Activity (Last 14 Days)</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-end gap-1 h-32 overflow-x-auto">
+            <div className="flex items-end gap-1 h-32 overflow-x-auto pb-4">
               {stats.dailyStats.slice(-14).map((day) => {
                 const maxViews = Math.max(...stats.dailyStats.map(d => d.views))
-                const height = maxViews > 0 ? (day.views / maxViews) * 100 : 0
+                const height = maxViews > 0 ? Math.max((day.views / maxViews) * 100, 4) : 4
                 
                 return (
-                  <div key={day.date} className="flex-shrink-0 flex flex-col items-center">
-                    <div 
-                      className="bg-govt-blue w-4 rounded-t transition-all"
-                      style={{ height: `${height}%`, minHeight: height > 0 ? '4px' : '0px' }}
-                      title={`${day.date}: ${day.views} views, ${day.visitors} visitors`}
-                    ></div>
-                    <div className="text-xs text-gray-600 mt-1 rotate-45 whitespace-nowrap">
+                  <div key={day.date} className="flex-shrink-0 flex flex-col items-center min-w-[30px]">
+                    <div className="flex flex-col items-center justify-end h-24">
+                      <div 
+                        className="bg-govt-blue w-6 rounded-t transition-all hover:bg-blue-700"
+                        style={{ height: `${height}%` }}
+                        title={`${day.date}: ${day.views} views, ${day.visitors} unique visitors`}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-600 mt-2 transform rotate-45 whitespace-nowrap origin-left">
                       {day.date.split('-').slice(1).join('/')}
                     </div>
                   </div>
                 )
               })}
             </div>
+            <div className="mt-4 text-xs text-gray-600">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-govt-blue rounded"></div>
+                  <span>Page Views</span>
+                </div>
+                <span>• Hover bars for details</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Summary Stats */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="text-center">
+          <div className="text-lg font-bold text-govt-gray">
+            {stats.totalSessions > 0 ? (stats.totalPageViews / stats.totalSessions).toFixed(1) : '0'}
+          </div>
+          <div className="text-sm text-gray-600">Pages per Session</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold text-govt-gray">
+            {stats.totalSessions > 0 ? ((stats.uniqueVisitors / stats.totalSessions) * 100).toFixed(1) + '%' : '0%'}
+          </div>
+          <div className="text-sm text-gray-600">New Visitor Rate</div>
+        </div>
+        <div className="text-center">
+          <div className="text-lg font-bold text-govt-gray">
+            {timePeriod}
+          </div>
+          <div className="text-sm text-gray-600">Days Analyzed</div>
+        </div>
+      </div>
+
       <div className="mt-6 text-xs text-gray-500 text-center">
-        Analytics data is stored securely in your Cosmic CMS and is not shared with third parties.
+        Analytics data is stored securely in your Cosmic CMS. Last updated: {new Date().toLocaleString()}
       </div>
     </div>
   )

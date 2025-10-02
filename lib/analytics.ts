@@ -27,6 +27,13 @@ export interface AnalyticsStats {
   deviceBreakdown: Array<{ device: string; count: number }>
   browserBreakdown: Array<{ browser: string; count: number }>
   dailyStats: Array<{ date: string; views: number; visitors: number }>
+  topReferrers: Array<{ referrer: string; count: number }>
+  operatingSystemBreakdown: Array<{ os: string; count: number }>
+}
+
+// Simple error helper for Cosmic SDK
+function hasStatus(error: unknown): error is { status: number } {
+  return typeof error === 'object' && error !== null && 'status' in error;
 }
 
 // Generate a session ID for tracking
@@ -120,21 +127,16 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
     
-    // Fetch analytics events from the specified time period
+    // Fetch all analytics events (no date filtering since Cosmic doesn't support date range queries in the same way)
+    // We'll filter on the client side
     const response = await cosmic.objects
-      .find({ 
-        type: 'analytics-events',
-        created_at: {
-          $gte: startDate.toISOString(),
-          $lte: endDate.toISOString()
-        }
-      })
+      .find({ type: 'analytics-events' })
       .props(['id', 'metadata', 'created_at'])
       .limit(10000)
     
-    const events = response.objects
+    const allEvents = response.objects
     
-    if (!events || events.length === 0) {
+    if (!allEvents || allEvents.length === 0) {
       return {
         totalPageViews: 0,
         uniqueVisitors: 0,
@@ -144,12 +146,37 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
         topPages: [],
         deviceBreakdown: [],
         browserBreakdown: [],
-        dailyStats: []
+        dailyStats: [],
+        topReferrers: [],
+        operatingSystemBreakdown: []
+      }
+    }
+    
+    // Filter events by date range
+    const events = allEvents.filter((e: any) => {
+      if (!e.created_at) return false
+      const eventDate = new Date(e.created_at)
+      return eventDate >= startDate && eventDate <= endDate
+    })
+    
+    if (events.length === 0) {
+      return {
+        totalPageViews: 0,
+        uniqueVisitors: 0,
+        totalSessions: 0,
+        averageSessionDuration: 0,
+        topCountries: [],
+        topPages: [],
+        deviceBreakdown: [],
+        browserBreakdown: [],
+        dailyStats: [],
+        topReferrers: [],
+        operatingSystemBreakdown: []
       }
     }
     
     // Calculate statistics
-    const pageViews = events.filter((e: any) => e.metadata?.event_type === 'page_view')
+    const pageViews = events.filter((e: any) => e.metadata?.event_type?.key === 'page_view' || e.metadata?.event_type === 'page_view')
     const sessions = new Set(events.map((e: any) => e.metadata?.session_id).filter(Boolean))
     const uniqueVisitors = sessions.size
     
@@ -162,11 +189,11 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
       ? sessionDurations.reduce((a: number, b: number) => a + b, 0) / sessionDurations.length 
       : 0
     
-    // Top countries
+    // Top countries (handle both object and string formats)
     const countryCount = new Map<string, number>()
     events.forEach((e: any) => {
-      const country = e.metadata?.country
-      if (country) {
+      const country = e.metadata?.country?.value || e.metadata?.country || null
+      if (country && country !== 'null' && country.trim() !== '') {
         countryCount.set(country, (countryCount.get(country) || 0) + 1)
       }
     })
@@ -188,26 +215,58 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
       .sort((a, b) => b.count - a.count)
       .slice(0, 10)
     
-    // Device breakdown
+    // Device breakdown (handle both object and string formats)
     const deviceCount = new Map<string, number>()
     events.forEach((e: any) => {
-      const device = e.metadata?.device_type || 'unknown'
+      const device = e.metadata?.device_type?.value || e.metadata?.device_type || 'unknown'
       deviceCount.set(device, (deviceCount.get(device) || 0) + 1)
     })
     const deviceBreakdown = Array.from(deviceCount.entries())
-      .map(([device, count]) => ({ device, count }))
+      .map(([device, count]) => ({ device: device.charAt(0).toUpperCase() + device.slice(1), count }))
       .sort((a, b) => b.count - a.count)
     
     // Browser breakdown
     const browserCount = new Map<string, number>()
     events.forEach((e: any) => {
       const browser = e.metadata?.browser
-      if (browser) {
+      if (browser && browser !== 'Other' && browser.trim() !== '') {
         browserCount.set(browser, (browserCount.get(browser) || 0) + 1)
       }
     })
     const browserBreakdown = Array.from(browserCount.entries())
       .map(([browser, count]) => ({ browser, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+    
+    // Operating System breakdown
+    const osCount = new Map<string, number>()
+    events.forEach((e: any) => {
+      const os = e.metadata?.operating_system
+      if (os && os !== 'Other' && os.trim() !== '') {
+        osCount.set(os, (osCount.get(os) || 0) + 1)
+      }
+    })
+    const operatingSystemBreakdown = Array.from(osCount.entries())
+      .map(([os, count]) => ({ os, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+    
+    // Top referrers
+    const referrerCount = new Map<string, number>()
+    events.forEach((e: any) => {
+      const referrer = e.metadata?.referrer
+      if (referrer && referrer.trim() !== '' && referrer !== 'https://shutdown-clock-d7lzro82d.cosmic.site/') {
+        // Extract domain from referrer URL
+        try {
+          const domain = new URL(referrer).hostname
+          referrerCount.set(domain, (referrerCount.get(domain) || 0) + 1)
+        } catch {
+          referrerCount.set(referrer, (referrerCount.get(referrer) || 0) + 1)
+        }
+      }
+    })
+    const topReferrers = Array.from(referrerCount.entries())
+      .map(([referrer, count]) => ({ referrer, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10)
     
@@ -221,7 +280,8 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
         }
         const dayData = dailyCount.get(date)!
         
-        if (e.metadata?.event_type === 'page_view') {
+        const eventType = e.metadata?.event_type?.key || e.metadata?.event_type
+        if (eventType === 'page_view') {
           dayData.views++
         }
         if (e.metadata?.session_id) {
@@ -247,7 +307,9 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
       topPages,
       deviceBreakdown,
       browserBreakdown,
-      dailyStats
+      dailyStats,
+      topReferrers,
+      operatingSystemBreakdown
     }
     
   } catch (error) {
