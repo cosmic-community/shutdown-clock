@@ -35,6 +35,27 @@ export interface CitizenReport extends CosmicObject {
   };
 }
 
+// Analytics Events object type
+export interface AnalyticsEvent extends CosmicObject {
+  type: 'analytics-events';
+  metadata: {
+    event_type: 'page_view' | 'session_start' | 'form_submission' | 'social_share' | 'external_link_click';
+    session_id: string;
+    user_agent?: string;
+    ip_address?: string;
+    referrer?: string;
+    page_url: string;
+    screen_resolution?: string;
+    country?: string;
+    city?: string;
+    device_type?: 'desktop' | 'mobile' | 'tablet' | 'unknown';
+    browser?: string;
+    operating_system?: string;
+    session_duration?: number;
+    additional_data?: string; // JSON string
+  };
+}
+
 // API response types
 export interface CosmicResponse<T> {
   objects: T[];

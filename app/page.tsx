@@ -1,10 +1,12 @@
 import { getSiteSettings, getApprovedCitizenReports } from '@/lib/cosmic'
+import { generateSessionId } from '@/lib/analytics'
 import { Banner } from '@/components/Banner'
 import { CountdownTimer } from '@/components/CountdownTimer'
 import { CitizenReportsForm } from '@/components/CitizenReportsForm'
 import { CitizenReportsList } from '@/components/CitizenReportsList'
 import { SocialShare } from '@/components/SocialShare'
 import { Footer } from '@/components/Footer'
+import { AnalyticsTracker } from '@/components/AnalyticsTracker'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +15,9 @@ export default async function HomePage() {
     getSiteSettings(),
     getApprovedCitizenReports(),
   ]);
+
+  // Generate session ID for analytics
+  const sessionId = generateSessionId()
 
   if (!settings) {
     return (
@@ -38,6 +43,9 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Analytics Tracking */}
+      <AnalyticsTracker sessionId={sessionId} />
+      
       <Banner text={bannerText} />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
