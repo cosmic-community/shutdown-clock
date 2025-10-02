@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const referrer = request.headers.get('referer') || ''
     const forwardedFor = request.headers.get('x-forwarded-for')
     const realIP = request.headers.get('x-real-ip')
-    const ipAddress = forwardedFor?.split(',')[0]?.trim() || realIP || request.ip || ''
+    const ipAddress = forwardedFor?.split(',')[0]?.trim() || realIP || ''
     
     // Build analytics event data
     const eventData: AnalyticsEvent = {

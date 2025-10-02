@@ -149,22 +149,22 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
     }
     
     // Calculate statistics
-    const pageViews = events.filter(e => e.metadata?.event_type === 'page_view')
-    const sessions = new Set(events.map(e => e.metadata?.session_id).filter(Boolean))
+    const pageViews = events.filter((e: any) => e.metadata?.event_type === 'page_view')
+    const sessions = new Set(events.map((e: any) => e.metadata?.session_id).filter(Boolean))
     const uniqueVisitors = sessions.size
     
     // Session durations
     const sessionDurations = events
-      .filter(e => e.metadata?.session_duration && e.metadata.session_duration > 0)
-      .map(e => Number(e.metadata.session_duration))
+      .filter((e: any) => e.metadata?.session_duration && e.metadata.session_duration > 0)
+      .map((e: any) => Number(e.metadata.session_duration))
     
     const averageSessionDuration = sessionDurations.length > 0 
-      ? sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length 
+      ? sessionDurations.reduce((a: number, b: number) => a + b, 0) / sessionDurations.length 
       : 0
     
     // Top countries
     const countryCount = new Map<string, number>()
-    events.forEach(e => {
+    events.forEach((e: any) => {
       const country = e.metadata?.country
       if (country) {
         countryCount.set(country, (countryCount.get(country) || 0) + 1)
@@ -177,7 +177,7 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
     
     // Top pages
     const pageCount = new Map<string, number>()
-    pageViews.forEach(e => {
+    pageViews.forEach((e: any) => {
       const page = e.metadata?.page_url
       if (page) {
         pageCount.set(page, (pageCount.get(page) || 0) + 1)
@@ -190,7 +190,7 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
     
     // Device breakdown
     const deviceCount = new Map<string, number>()
-    events.forEach(e => {
+    events.forEach((e: any) => {
       const device = e.metadata?.device_type || 'unknown'
       deviceCount.set(device, (deviceCount.get(device) || 0) + 1)
     })
@@ -200,7 +200,7 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
     
     // Browser breakdown
     const browserCount = new Map<string, number>()
-    events.forEach(e => {
+    events.forEach((e: any) => {
       const browser = e.metadata?.browser
       if (browser) {
         browserCount.set(browser, (browserCount.get(browser) || 0) + 1)
@@ -213,7 +213,7 @@ export async function getAnalyticsStats(days: number = 30): Promise<AnalyticsSta
     
     // Daily stats
     const dailyCount = new Map<string, { views: number; visitors: Set<string> }>()
-    events.forEach(e => {
+    events.forEach((e: any) => {
       const date = e.created_at?.split('T')[0] // Extract YYYY-MM-DD
       if (date) {
         if (!dailyCount.has(date)) {
