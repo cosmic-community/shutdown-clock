@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 interface FooterProps {
   text?: string;
 }
@@ -11,6 +13,16 @@ export function Footer({ text }: FooterProps) {
         <p className="text-sm italic">
           {footerText}
         </p>
+        
+        {/* Admin Button */}
+        <div className="mt-4">
+          <Link 
+            href="/analytics"
+            className="inline-block text-xs text-gray-400 hover:text-white transition-colors duration-200 opacity-50 hover:opacity-100"
+          >
+            Analytics
+          </Link>
+        </div>
       </div>
     </footer>
   );

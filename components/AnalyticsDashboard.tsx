@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react'
 import type { AnalyticsStats } from '@/lib/analytics'
 
-export function AnalyticsDashboard() {
+interface AnalyticsDashboardProps {
+  onAccessDenied?: () => void
+}
+
+export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) {
   const [stats, setStats] = useState<AnalyticsStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -16,6 +20,14 @@ export function AnalyticsDashboard() {
       
       try {
         const response = await fetch(`/api/analytics/stats?days=${timePeriod}`)
+        
+        if (response.status === 401) {
+          // Access denied
+          if (onAccessDenied) {
+            onAccessDenied()
+          }
+          return
+        }
         
         if (!response.ok) {
           throw new Error('Failed to fetch analytics data')
@@ -31,7 +43,7 @@ export function AnalyticsDashboard() {
     }
 
     fetchStats()
-  }, [timePeriod])
+  }, [timePeriod, onAccessDenied])
 
   const formatDuration = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60)
