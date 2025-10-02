@@ -12,6 +12,8 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [timePeriod, setTimePeriod] = useState(30)
+  const [clearingData, setClearingData] = useState(false)
+  const [clearSuccess, setClearSuccess] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -44,6 +46,50 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
 
     fetchStats()
   }, [timePeriod, onAccessDenied])
+
+  const handleClearData = async () => {
+    if (!confirm('Are you sure you want to clear ALL analytics data? This cannot be undone.')) {
+      return
+    }
+
+    setClearingData(true)
+    setClearSuccess(null)
+    setError(null)
+
+    try {
+      const accessCode = prompt('Enter access code to confirm:')
+      if (!accessCode) {
+        setClearingData(false)
+        return
+      }
+
+      const response = await fetch('/api/analytics/clear', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ accessCode }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to clear analytics data')
+      }
+
+      setClearSuccess(data.message)
+      
+      // Refresh the stats after clearing
+      setTimeout(() => {
+        window.location.reload()
+      }, 2000)
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to clear analytics data')
+    } finally {
+      setClearingData(false)
+    }
+  }
 
   const formatDuration = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60)
@@ -95,7 +141,7 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h2 className="text-xl font-bold text-govt-gray">Analytics Dashboard</h2>
-        <div className="mt-2 sm:mt-0">
+        <div className="mt-2 sm:mt-0 flex gap-2">
           <select
             value={timePeriod}
             onChange={(e) => setTimePeriod(Number(e.target.value))}
@@ -105,8 +151,28 @@ export function AnalyticsDashboard({ onAccessDenied }: AnalyticsDashboardProps) 
             <option value={30}>Last 30 days</option>
             <option value={90}>Last 90 days</option>
           </select>
+          
+          <button
+            onClick={handleClearData}
+            disabled={clearingData}
+            className="bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          >
+            {clearingData ? 'Clearing...' : 'Clear Data'}
+          </button>
         </div>
       </div>
+
+      {/* Success/Error Messages */}
+      {clearSuccess && (
+        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-md mb-6">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {clearSuccess} - Page will refresh automatically.
+          </div>
+        </div>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
